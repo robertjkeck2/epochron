@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/robertjkeck2/epochron.svg?branch=master)](https://travis-ci.org/robertjkeck2/epochron)
 [![Built with](https://img.shields.io/badge/Built_with-Cookiecutter_Django_Rest-F7B633.svg)](https://github.com/agconti/cookiecutter-django-rest)
 
-REST ful Webcron Service with Webhooks. Check out the project's [documentation](http://robertjkeck2.github.io/epochron/).
+## RESTful Webcron Service with Webhooks
 
 # Prerequisites
 
