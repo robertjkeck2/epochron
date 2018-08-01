@@ -11,6 +11,9 @@ from rest_framework.authtoken.models import Token
 @python_2_unicode_compatible
 class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    daily_usage = models.FloatField(default=0)
+    max_daily_usage = models.IntegerField(default=5)
+    num_jobs = models.IntegerField(default=0)
 
     def __str__(self):
         return self.username

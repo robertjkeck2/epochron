@@ -24,6 +24,7 @@ class Common(Configuration):
 
         # Your apps
         'epochron.users',
+        'epochron.api',
 
     )
 
@@ -181,6 +182,7 @@ class Common(Configuration):
 
     # Custom user app
     AUTH_USER_MODEL = 'users.User'
+    JOB_MODEL = 'api.Job'
 
     # Django Rest Framework
     REST_FRAMEWORK = {
