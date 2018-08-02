@@ -40,9 +40,10 @@ class Job(models.Model):
     http_method = models.CharField(max_length=7, choices=METHOD_CHOICES, default='get')
     http_params = models.TextField(blank=True, default='')
     http_url = models.URLField()
-    previous_run_duration = models.FloatField(blank=True, default=0)
+    last_run_at = models.DateTimeField(auto_now=True)
+    last_run_duration = models.FloatField(blank=True, default=0)
     name = models.CharField(max_length=100)
-    next_run = models.DateTimeField(auto_now_add=True)
+    next_run_at = models.DateTimeField(auto_now_add=True)
     timezone = models.CharField(max_length=100, choices=TZ_CHOICES, default='UTC')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True, null=True)
     webhook_data = models.TextField(blank=True, default='')
@@ -58,13 +59,12 @@ class Job(models.Model):
 def get_next(sender, instance=None, **kwargs):
     cron_expression = instance.cron_expression
     piecewise_cron_expression = f'{instance.cron_minute} {instance.cron_hour} {instance.cron_day} {instance.cron_month} {instance.cron_weekday}'
-    if cron_expression != piecewise_cron_expression:
+    if (cron_expression != piecewise_cron_expression) or (instance.next_run_at < timezone.now()):
+        updated_cron_expression = '0 * * * *'
         if not cron_expression:
             piecewise_cron_length = len(piecewise_cron_expression.strip().split(' '))
             if piecewise_cron_length == 5:
-                instance.cron_expression = piecewise_cron_expression
-            else:
-                instance.cron_expression = '0 * * * *'
+                updated_cron_expression = piecewise_cron_expression
         else:
             split_cron_expression = cron_expression.split(' ')
             if len(split_cron_expression) == 5:
@@ -73,10 +73,9 @@ def get_next(sender, instance=None, **kwargs):
                 instance.cron_day = split_cron_expression[2]
                 instance.cron_month = split_cron_expression[3]
                 instance.cron_weekday = split_cron_expression[4]
-            else:
-                instance.cron_expression = '0 * * * *'
+        instance.cron_expression = updated_cron_expression
         tz = pytz.timezone(instance.timezone)
         local_time = datetime.now(tz)
         iter = croniter(instance.cron_expression, local_time)
-        instance.next_run = iter.get_next(datetime).astimezone(pytz.utc)
+        instance.next_run_at = iter.get_next(datetime).astimezone(pytz.utc)
         instance.save()
