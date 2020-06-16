@@ -1,3 +1,4 @@
+from django_filters import rest_framework as filters
 from rest_framework import viewsets, mixins
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -14,6 +15,8 @@ class JobViewSet(mixins.RetrieveModelMixin,
     """
     queryset = Job.objects.all()
     serializer_class = JobSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filter_fields = ('user',)
     permission_classes = (IsOwnerOrAdmin,)
 
     def update(self, request, *args, **kwargs):
